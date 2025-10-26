@@ -2,8 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://zpsajst-linkscout-backend.hf.space';
 
-console.log('🔧 Analyze API initialized with backend:', BACKEND_URL);
-
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();

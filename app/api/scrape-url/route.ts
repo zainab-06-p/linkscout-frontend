@@ -4,8 +4,6 @@ import { NextRequest, NextResponse } from 'next/server';
 // Vercel does NOT automatically read .env.production files
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://zpsajst-linkscout-backend.hf.space';
 
-console.log('🔧 Scrape-URL API initialized with backend:', BACKEND_URL);
-
 // Use edge runtime for better performance
 export const runtime = 'edge';
 
