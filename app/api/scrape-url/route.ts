@@ -1,13 +1,36 @@
 import { NextRequest, NextResponse } from 'next/server';
 import * as cheerio from 'cheerio';
 
+// Use Node.js runtime for better fetch capabilities
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+
 interface Paragraph {
   index: number;
   text: string;
   type: string;
 }
 
+export async function OPTIONS(request: NextRequest) {
+  return new NextResponse(null, {
+    status: 200,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      'Access-Control-Max-Age': '86400',
+    },
+  });
+}
+
 export async function POST(request: NextRequest) {
+  // Add CORS headers to response
+  const corsHeaders = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type',
+  };
+
   try {
     const { url } = await request.json();
 
@@ -116,13 +139,16 @@ export async function POST(request: NextRequest) {
 
     console.log(`✅ Scraped ${paragraphs.length} paragraphs`);
 
-    return NextResponse.json({
-      success: true,
-      url: validUrl,
-      title,
-      paragraphs,
-      total_paragraphs: paragraphs.length,
-    });
+    return NextResponse.json(
+      {
+        success: true,
+        url: validUrl,
+        title,
+        paragraphs,
+        total_paragraphs: paragraphs.length,
+      },
+      { headers: corsHeaders }
+    );
 
   } catch (error) {
     console.error('❌ Scrape Error:', error);
@@ -132,18 +158,7 @@ export async function POST(request: NextRequest) {
         error: error instanceof Error ? error.message : 'Scraping failed',
         message: 'Unable to extract content from this URL.',
       },
-      { status: 500 }
+      { status: 500, headers: corsHeaders }
     );
   }
-}
-
-export async function OPTIONS(request: NextRequest) {
-  return new NextResponse(null, {
-    status: 200,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type',
-    },
-  });
 }
