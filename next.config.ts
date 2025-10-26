@@ -3,8 +3,22 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   /* config options here */
   
+  // CRITICAL: Disable experimental features for production
+  experimental: {
+    // Explicitly disable turbopack in production
+    turbo: undefined,
+  },
+  
   // Vercel deployment optimization
   output: 'standalone',
+  
+  // Disable webpack cache in production to avoid stale artifacts
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      config.cache = false;
+    }
+    return config;
+  },
   
   eslint: {
     // Disable ESLint during production builds
@@ -18,10 +32,17 @@ const nextConfig: NextConfig = {
   // Optimize for production
   poweredByHeader: false,
   compress: true,
+  reactStrictMode: true,
   
   // Image optimization
   images: {
     formats: ['image/avif', 'image/webp'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**',
+      },
+    ],
   },
 };
 
