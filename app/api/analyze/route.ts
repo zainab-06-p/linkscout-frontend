@@ -2,6 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://zpsajst-linkscout-backend.hf.space';
 
+// Use Node.js runtime for better compatibility
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+export const maxDuration = 300; // 5 minutes for analysis
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
