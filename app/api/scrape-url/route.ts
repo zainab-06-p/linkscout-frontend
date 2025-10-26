@@ -20,14 +20,46 @@ export async function POST(request: NextRequest) {
 
     console.log('🌐 Scraping URL:', url);
 
-    // Fetch the webpage
-    const response = await fetch(url, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-        'Accept-Language': 'en-US,en;q=0.5',
-      },
-    });
+    // Validate URL format
+    let validUrl: string;
+    try {
+      validUrl = url.startsWith('http') ? url : `https://${url}`;
+      new URL(validUrl); // Validate URL
+    } catch (err) {
+      return NextResponse.json(
+        { success: false, error: 'Invalid URL format' },
+        { status: 400 }
+      );
+    }
+
+    // Fetch the webpage with timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+
+    let response;
+    try {
+      response = await fetch(validUrl, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+          'Accept-Language': 'en-US,en;q=0.5',
+        },
+        signal: controller.signal,
+      });
+    } catch (fetchError) {
+      clearTimeout(timeoutId);
+      console.error('Fetch error:', fetchError);
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: 'Failed to fetch URL. The website may be blocking automated requests or is unreachable.',
+          details: fetchError instanceof Error ? fetchError.message : 'Unknown fetch error'
+        },
+        { status: 500 }
+      );
+    }
+
+    clearTimeout(timeoutId);
 
     if (!response.ok) {
       throw new Error(`Failed to fetch URL: ${response.status} ${response.statusText}`);
@@ -129,11 +161,27 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('❌ URL Scraping Error:', error);
     
+    // Provide more detailed error messages
+    let errorMessage = 'Failed to scrape URL';
+    let errorDetails = '';
+    
+    if (error instanceof Error) {
+      if (error.message.includes('fetch')) {
+        errorMessage = 'Unable to fetch content from this URL';
+        errorDetails = 'The website may be blocking automated requests, requires authentication, or is unreachable.';
+      } else if (error.message.includes('timeout') || error.message.includes('aborted')) {
+        errorMessage = 'Request timeout';
+        errorDetails = 'The website took too long to respond. Please try again.';
+      } else {
+        errorMessage = error.message;
+      }
+    }
+    
     return NextResponse.json(
       {
         success: false,
-        error: error instanceof Error ? error.message : 'Failed to scrape URL',
-        message: 'Unable to fetch content from this URL. Please check if the URL is accessible.',
+        error: errorMessage,
+        message: errorDetails || 'Unable to fetch content from this URL. Please check if the URL is accessible.',
       },
       { status: 500 }
     );
