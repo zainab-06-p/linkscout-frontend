@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000';
+// CRITICAL: Hardcoded for Vercel deployment reliability
+// Vercel does NOT automatically read .env.production files
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://zpsajst-linkscout-backend.hf.space';
+
+console.log('🔧 Scrape-URL API initialized with backend:', BACKEND_URL);
 
 // Use edge runtime for better performance
 export const runtime = 'edge';
@@ -34,34 +38,48 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log('🌐 Forwarding scrape request to backend:', url);
+    console.log('🌐 Forwarding scrape request to backend:', BACKEND_URL);
+    console.log('🔗 Target URL:', url);
 
-    // Forward to backend which has BeautifulSoup and proper scraping
-    const backendResponse = await fetch(`${BACKEND_URL}/scrape-url`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ url }),
-      signal: AbortSignal.timeout(30000),
-    });
+    // Create AbortController for timeout (Edge runtime compatible)
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 60000); // 60s timeout
+
+    let backendResponse;
+    try {
+      // Forward to backend which has BeautifulSoup and proper scraping
+      backendResponse = await fetch(`${BACKEND_URL}/scrape-url`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ url }),
+        signal: controller.signal,
+      });
+    } catch (fetchError) {
+      clearTimeout(timeoutId);
+      throw fetchError;
+    }
+
+    clearTimeout(timeoutId);
 
     if (!backendResponse.ok) {
       const errorData = await backendResponse.json().catch(() => ({}));
-      console.error('Backend scrape error:', errorData);
+      console.error('❌ Backend scrape error (HTTP ' + backendResponse.status + '):', errorData);
       
       return NextResponse.json(
         { 
           success: false, 
           error: errorData.error || 'Failed to scrape URL',
           message: errorData.message || 'Unable to fetch content from this URL.',
+          backendStatus: backendResponse.status
         },
         { status: backendResponse.status, headers: corsHeaders }
       );
     }
 
     const data = await backendResponse.json();
-    console.log(`✅ Backend scraped ${data.paragraphs?.length || 0} paragraphs`);
+    console.log(`✅ Backend scraped ${data.paragraphs?.length || 0} paragraphs from ${url}`);
 
     return NextResponse.json(data, { headers: corsHeaders });
 
@@ -72,14 +90,15 @@ export async function POST(request: NextRequest) {
     let errorDetails = '';
     
     if (error instanceof Error) {
-      if (error.name === 'AbortError' || error.message.includes('timeout')) {
+      if (error.name === 'AbortError' || error.message.includes('timeout') || error.message.includes('aborted')) {
         errorMessage = 'Request timeout';
-        errorDetails = 'The backend took too long to respond. Please try again.';
-      } else if (error.message.includes('fetch') || error.message.includes('network')) {
+        errorDetails = 'The backend took too long to respond (60s limit). The URL might be slow or blocked.';
+      } else if (error.message.includes('fetch') || error.message.includes('network') || error.message.includes('Failed to fetch')) {
         errorMessage = 'Network error';
-        errorDetails = 'Unable to connect to backend. Please try again later.';
+        errorDetails = `Unable to connect to backend (${BACKEND_URL}). Backend might be starting up or down.`;
       } else {
         errorMessage = error.message;
+        errorDetails = 'An unexpected error occurred during URL scraping.';
       }
     }
     
@@ -88,6 +107,7 @@ export async function POST(request: NextRequest) {
         success: false,
         error: errorMessage,
         message: errorDetails || 'Unable to fetch content. Please try a different URL.',
+        backendUrl: BACKEND_URL,
       },
       { status: 500, headers: corsHeaders }
     );
