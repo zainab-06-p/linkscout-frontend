@@ -3,6 +3,9 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   /* config options here */
   
+  // Enable SWC compilation
+  swcMinify: true,
+  
   // CRITICAL: Disable experimental features for production
   experimental: {
     // Explicitly disable turbopack in production
