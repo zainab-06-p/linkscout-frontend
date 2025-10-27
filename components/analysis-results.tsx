@@ -118,15 +118,11 @@ const [expandedSections, setExpandedSections] = useState<Record<SectionKey, bool
     <div className="w-full space-y-3 md:space-y-4">
       {/* Verdict Card - Mobile optimized */}
       <div className={`bg-gradient-to-br ${bgGradient} border ${borderColor} rounded-xl md:rounded-2xl p-4 md:p-6 backdrop-blur-sm`}>
-        <div className="flex items-center justify-center w-full">
-          <div className="text-center">
-            <div className="text-2xl md:text-3xl font-bold text-white mb-2">
-              {verdict}
-            </div>
-            <div className="text-3xl md:text-5xl font-bold" style={{ color: '#3b82f6' }}>
-              {Math.round(credibilityScore)}%
-            </div>
-            <div className="text-orange-100/60 text-xs md:text-sm mt-2">Risk Score</div>
+        <div className="flex items-center justify-between w-full">
+          <div className="text-lg text-white/60">{data.title}</div>
+          <div className="flex items-center gap-4">
+            <span className="text-3xl font-bold text-white">{verdict}</span>
+            <span className="text-4xl font-bold" style={{ color: '#3b82f6' }}>{Math.round(credibilityScore)}%</span>
           </div>
         </div>
 
@@ -310,11 +306,11 @@ const [expandedSections, setExpandedSections] = useState<Record<SectionKey, bool
                   <div>
                     <div className="flex justify-between items-center mb-2">
                       <span className="text-sm md:text-base font-semibold text-orange-100/80">Risk Score</span>
-                      <div className="text-center">
-                <span className="text-2xl md:text-3xl font-bold block text-white mb-2">
+                      <div className="flex items-center justify-end gap-4">
+                <span className="text-3xl font-bold text-white">
                   {data.combined_analysis.verdict}
                 </span>
-                <span className="text-3xl md:text-5xl font-bold block" style={{ color: '#3b82f6' }}>
+                <span className="text-4xl font-bold" style={{ color: '#3b82f6' }}>
                   {Math.round(data.combined_analysis.overall_score || 0)}%
                 </span>
               </div>
