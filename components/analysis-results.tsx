@@ -1,5 +1,6 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, ReactNode, ReactElement } from "react";
+import "@/app/globals.css";
 import { 
   CheckCircle2, 
   XCircle, 
@@ -21,13 +22,55 @@ import {
 } from "lucide-react";
 
 interface AnalysisResultsProps {
-  data: any;
+  data: {
+    success?: boolean;
+    error?: string;
+    combined_analysis?: {
+      overall_score: number;
+      verdict: string;
+      verdict_color: string;
+    };
+    pretrained_models?: {
+      categories?: string[];
+      named_entities?: string[];
+    };
+    what_is_right?: string;
+    what_is_wrong?: string;
+    internet_says?: string;
+    recommendation?: string;
+    why_matters?: string;
+    overall?: {
+      total_paragraphs: number;
+      fake_paragraphs: number;
+      suspicious_paragraphs: number;
+    };
+    chunks?: Array<{
+      index: number;
+      text_preview: string;
+      suspicious_score: number;
+      severity: 'high' | 'medium';
+      why_flagged?: string;
+    }>;
+    research_sources?: Array<string | { url: string; title: string; snippet?: string }>;
+    sources_found?: Array<string | { url: string; title: string; snippet?: string }>;
+    image_analysis?: {
+      analyzed_images: number;
+      ai_generated_count: number;
+      real_images_count: number;
+      summary: string;
+      total_images?: number;
+    };
+    title?: string;
+  };
   onFeedback?: (feedbackType: 'correct' | 'incorrect' | 'aggressive' | 'lenient') => void;
 }
 
-export function AnalysisResults({ data, onFeedback }: AnalysisResultsProps) {
-  const [activeTab, setActiveTab] = useState<'overview' | 'details' | 'sources' | 'images'>('overview');
-  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
+export function AnalysisResults({ data, onFeedback }: AnalysisResultsProps): ReactElement {
+  const [activeTab, setActiveTab] = useState<TabKey>('overview');
+  type SectionKey = 'overview' | 'correct' | 'wrong' | 'internet' | 'recommendation' | 'matters';
+type TabKey = 'overview' | 'details' | 'sources' | 'images';
+
+const [expandedSections, setExpandedSections] = useState<Record<SectionKey, boolean>>({
     overview: true,
     correct: true,
     wrong: true,
@@ -54,28 +97,17 @@ export function AnalysisResults({ data, onFeedback }: AnalysisResultsProps) {
     );
   }
 
-  // Always use server's credibility_percentage to ensure alignment with sidebar
-  const credibilityScore = data.credibility_percentage || 0;
-  const suspiciousScore = data.misinformation_percentage || 0;
+  // Use combined analysis from server for accurate alignment with sidebar
+  const credibilityScore = data.combined_analysis?.overall_score || 0;
+  const verdict = data.combined_analysis?.verdict || 'UNKNOWN';
+  const verdictColor = data.combined_analysis?.verdict_color || '#f59e0b';
   
-  const verdict = data.verdict || 'UNKNOWN';
-  
-  // Determine color scheme based on credibility score using the server thresholds
-  let verdictColor = 'text-red-400';
-  let bgGradient = 'from-red-500/20 to-rose-500/20';
-  let borderColor = 'border-red-500/30';
-  
-  if (credibilityScore >= 60) {
-    verdictColor = 'text-green-400';
-    bgGradient = 'from-green-500/20 to-emerald-500/20';
-    borderColor = 'border-green-500/30';
-  } else if (credibilityScore >= 30) {
-    verdictColor = 'text-yellow-400';
-    bgGradient = 'from-yellow-500/20 to-amber-500/20';
-    borderColor = 'border-yellow-500/30';
-  }
+  // Use server's credibility assessment
+  // Use the server's verdict color directly
+  const bgGradient = `from-[${verdictColor}]/20 to-[${verdictColor}]/10`;
+  const borderColor = `border-[${verdictColor}]/30`;
 
-  const toggleSection = (section: string) => {
+  const toggleSection = (section: SectionKey) => {
     setExpandedSections(prev => ({ ...prev, [section]: !prev[section] }));
   };
 
@@ -86,12 +118,12 @@ export function AnalysisResults({ data, onFeedback }: AnalysisResultsProps) {
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 md:gap-4">
           <div className="flex-1 w-full">
             <div className="flex items-center gap-2 md:gap-3 mb-1.5 md:mb-2">
-              {credibilityScore >= 60 ? (
-                <CheckCircle2 className="h-6 w-6 md:h-8 md:w-8 text-green-400 shrink-0" />
-              ) : credibilityScore >= 30 ? (
-                <AlertTriangle className="h-6 w-6 md:h-8 md:w-8 text-yellow-400 shrink-0" />
+              {credibilityScore <= 35 ? (
+                <CheckCircle2 className="h-6 w-6 md:h-8 md:w-8 shrink-0" style={{ color: verdictColor }} />
+              ) : credibilityScore <= 50 ? (
+                <AlertTriangle className="h-6 w-6 md:h-8 md:w-8 shrink-0" style={{ color: verdictColor }} />
               ) : (
-                <XCircle className="h-6 w-6 md:h-8 md:w-8 text-red-400 shrink-0" />
+                <XCircle className="h-6 w-6 md:h-8 md:w-8 shrink-0" style={{ color: verdictColor }} />
               )}
               <h2 className={`text-xl md:text-3xl font-bold ${verdictColor} truncate`}>
                 {verdict}
@@ -102,22 +134,21 @@ export function AnalysisResults({ data, onFeedback }: AnalysisResultsProps) {
             )}
           </div>
           <div className="text-center self-end md:self-auto">
-            <div className={`text-4xl md:text-6xl font-bold ${verdictColor} tabular-nums`}>
-              {credibilityScore.toFixed(1)}%
+            <div className={`text-4xl md:text-6xl font-bold tabular-nums`} style={{ color: verdictColor }}>
+              {Math.round(credibilityScore)}/100
             </div>
-            <div className="text-orange-100/60 text-xs md:text-sm mt-0.5 md:mt-1">Credible</div>
+            <div className="text-orange-100/60 text-xs md:text-sm mt-0.5 md:mt-1">Risk Score</div>
           </div>
         </div>
 
         {/* Progress Bar - Slimmer on mobile */}
           <div className="mt-4 md:mt-6 bg-black/20 rounded-full h-2 md:h-3 overflow-hidden">
           <div 
-            className={`h-full rounded-full transition-all duration-1000 ${
-              credibilityScore > 57 ? 'bg-gradient-to-r from-green-400 to-emerald-500' :
-              credibilityScore > 43 ? 'bg-gradient-to-r from-yellow-400 to-amber-500' :
-              'bg-gradient-to-r from-red-400 to-rose-500'
-            }`}
-            style={{ width: `${Math.min(credibilityScore, 100)}%` }}
+            className="h-full rounded-full transition-all duration-1000"
+            style={{ 
+              width: `${Math.min(credibilityScore, 100)}%`,
+              background: `linear-gradient(90deg, ${verdictColor}, ${verdictColor}dd)`
+            }}
           />
         </div>
 
@@ -547,7 +578,14 @@ export function AnalysisResults({ data, onFeedback }: AnalysisResultsProps) {
 }
 
 // Helper Components - Mobile optimized
-function PhaseCard({ title, score, icon, details }: { title: string; score: number; icon: string; details: string[] }) {
+interface PhaseCardProps {
+  title: string;
+  score: number; 
+  icon: string;
+  details: string[];
+}
+
+function PhaseCard({ title, score, icon, details }: PhaseCardProps) {
   const percentage = Math.min(Math.max(score, 0), 100);
   
   let barColor = 'from-green-400 to-emerald-500';
@@ -596,7 +634,13 @@ function PhaseCard({ title, score, icon, details }: { title: string; score: numb
   );
 }
 
-function ScoreMeter({ label, score, description }: { label: string; score: number; description?: string }) {
+interface ScoreMeterProps {
+  label: string;
+  score: number;
+  description?: string;
+}
+
+function ScoreMeter({ label, score, description }: ScoreMeterProps) {
   const percentage = Math.min(Math.max(score, 0), 100);
   
   let barColor = 'bg-gradient-to-r from-green-400 to-emerald-500';
@@ -624,19 +668,21 @@ function ScoreMeter({ label, score, description }: { label: string; score: numbe
     </div>
   );
 }
+interface SectionProps {
+  title: string;
+  icon?: React.ReactNode;
+  children: ReactNode;
+  gradient?: string;
+  borderColor?: string;
+}
+
 function Section({ 
   title, 
   icon, 
   children, 
   gradient = "from-white/5 to-white/10",
   borderColor = "border-orange-500/20"
-}: { 
-  title: string; 
-  icon?: React.ReactNode; 
-  children: React.ReactNode;
-  gradient?: string;
-  borderColor?: string;
-}) {
+}: SectionProps) {
   return (
     <div className={`bg-gradient-to-br ${gradient} border ${borderColor} rounded-xl p-3 md:p-6 backdrop-blur-sm`}>
       <div className="flex items-center gap-2 mb-3 md:mb-4">
@@ -648,6 +694,11 @@ function Section({
   );
 }
 
+interface CollapsibleSectionProps extends SectionProps {
+  isExpanded: boolean;
+  onToggle: () => void;
+}
+
 function CollapsibleSection({
   title,
   icon,
@@ -656,15 +707,7 @@ function CollapsibleSection({
   borderColor = "border-orange-500/20",
   isExpanded,
   onToggle
-}: {
-  title: string;
-  icon?: React.ReactNode;
-  children: React.ReactNode;
-  gradient?: string;
-  borderColor?: string;
-  isExpanded: boolean;
-  onToggle: () => void;
-}) {
+}: CollapsibleSectionProps) {
   return (
     <div className={`bg-gradient-to-br ${gradient} border ${borderColor} rounded-xl backdrop-blur-sm overflow-hidden`}>
       <button
