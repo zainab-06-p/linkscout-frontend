@@ -54,11 +54,9 @@ export function AnalysisResults({ data, onFeedback }: AnalysisResultsProps) {
     );
   }
 
-  const suspiciousScore = data.misinformation_percentage || 0;
-  const credibilityScore = data.overall && data.overall.total_paragraphs > 0
-    ? ((data.overall.total_paragraphs - (data.overall.fake_paragraphs + data.overall.suspicious_paragraphs * 0.5)) / data.overall.total_paragraphs) * 100
-    : Math.max(0, Math.min(100, 100 - suspiciousScore));
-
+  // Use the server's credibility score directly
+  const credibilityScore = data.overall?.credibility_score || 100 - (data.misinformation_percentage || 0);
+  
   const verdict = data.verdict || 'UNKNOWN';
   
   // Determine color scheme based on credibility score using the server thresholds
