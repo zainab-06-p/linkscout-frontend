@@ -136,34 +136,14 @@ const [expandedSections, setExpandedSections] = useState<Record<SectionKey, bool
               <p className="text-orange-100/70 text-xs md:text-base line-clamp-2">{data.title}</p>
             )}
           </div>
-          <div className="space-y-4 self-end md:self-auto w-full">
-            {/* Warning Icon and Verdict */}
-            <div className="flex items-center gap-2">
-              <div className="text-yellow-500 text-2xl">⚠️</div>
-              <div className="text-xl font-bold uppercase" style={{ color: verdictColor }}>{verdict}</div>
+          <div className="text-center self-end md:self-auto">
+            <div className={`text-2xl md:text-4xl font-bold`} style={{ color: verdictColor }}>
+              {verdict}
             </div>
-            
-            {/* Suspicious Score */}
-            <div className="flex items-center justify-between">
-              <div className="text-lg font-semibold text-orange-100">Suspicious:</div>
-              <div className="text-lg font-bold" style={{ color: verdictColor }}>{suspiciousScore.toFixed(1)}%</div>
+            <div className={`text-xl md:text-2xl font-bold tabular-nums mt-1`} style={{ color: verdictColor }}>
+              {Math.round(credibilityScore)}%
             </div>
-
-            {/* Stats Grid */}
-            <div className="grid grid-cols-3 gap-4 text-center">
-              <div>
-                <div className="text-2xl font-bold text-orange-100">{data.overall?.total_paragraphs || 0}</div>
-                <div className="text-sm text-orange-100/60">Analyzed</div>
-              </div>
-              <div>
-                <div className="text-2xl font-bold text-orange-100">{data.overall?.fake_paragraphs || 0}</div>
-                <div className="text-sm text-orange-100/60">Flagged</div>
-              </div>
-              <div>
-                <div className="text-2xl font-bold text-orange-100">{credibleScore.toFixed(1)}%</div>
-                <div className="text-sm text-orange-100/60">Credible</div>
-              </div>
-            </div>
+            <div className="text-orange-100/60 text-xs md:text-sm mt-0.5 md:mt-1">Risk Score</div>
           </div>
         </div>
 
@@ -341,38 +321,13 @@ const [expandedSections, setExpandedSections] = useState<Record<SectionKey, bool
                   <div>
                     <div className="flex justify-between items-center mb-2">
                       <span className="text-sm md:text-base font-semibold text-orange-100/80">Risk Score</span>
-                      <div className="space-y-2">
-                {/* Warning Icon and Verdict */}
-                <div className="flex items-center gap-2">
-                  <div className="text-yellow-500 text-xl">⚠️</div>
-                  <span className="text-xl font-bold uppercase" style={{ color: data.combined_analysis.verdict_color || '#f59e0b' }}>
-                    {data.combined_analysis.verdict}
-                  </span>
-                </div>
-                
-                {/* Suspicious Score */}
-                <div className="flex items-center justify-between">
-                  <span className="text-base font-semibold text-orange-100">Suspicious:</span>
-                  <span className="text-base font-bold" style={{ color: data.combined_analysis.verdict_color || '#f59e0b' }}>
-                    {(data.combined_analysis.overall_score || 0).toFixed(1)}%
-                  </span>
-                </div>
-
-                {/* Stats */}
-                <div className="grid grid-cols-3 gap-2 text-center mt-2">
-                  <div>
-                    <div className="text-xl font-bold text-orange-100">{data.overall?.total_paragraphs || 0}</div>
-                    <div className="text-xs text-orange-100/60">Analyzed</div>
-                  </div>
-                  <div>
-                    <div className="text-xl font-bold text-orange-100">{data.overall?.fake_paragraphs || 0}</div>
-                    <div className="text-xs text-orange-100/60">Flagged</div>
-                  </div>
-                  <div>
-                    <div className="text-xl font-bold text-orange-100">{Math.round(100 - (data.combined_analysis.overall_score || 0))}%</div>
-                    <div className="text-xs text-orange-100/60">Credible</div>
-                  </div>
-                </div>
+                      <div>
+                <span className="text-2xl md:text-3xl font-bold block" style={{ color: data.combined_analysis.verdict_color || '#f59e0b' }}>
+                  {data.combined_analysis.verdict}
+                </span>
+                <span className="text-xl md:text-2xl font-bold tabular-nums block mt-1" style={{ color: data.combined_analysis.verdict_color || '#f59e0b' }}>
+                  {Math.round(data.combined_analysis.overall_score || 0)}%
+                </span>
               </div>
                     </div>
                     
