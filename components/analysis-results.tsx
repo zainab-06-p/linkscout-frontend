@@ -136,11 +136,11 @@ const [expandedSections, setExpandedSections] = useState<Record<SectionKey, bool
               <p className="text-orange-100/70 text-xs md:text-base line-clamp-2">{data.title}</p>
             )}
           </div>
-          <div className="text-center self-end md:self-auto">
-            <div className={`text-2xl md:text-4xl font-bold`} style={{ color: verdictColor }}>
+          <div className="flex-1 flex flex-col items-center justify-center">
+            <div className="text-2xl md:text-4xl font-bold text-white">
               {verdict}
             </div>
-            <div className={`text-xl md:text-2xl font-bold tabular-nums mt-1`} style={{ color: verdictColor }}>
+            <div className="text-xl md:text-2xl font-bold tabular-nums mt-1" style={{ color: '#3b82f6' }}>
               {Math.round(credibilityScore)}%
             </div>
             <div className="text-orange-100/60 text-xs md:text-sm mt-0.5 md:mt-1">Risk Score</div>
@@ -321,11 +321,11 @@ const [expandedSections, setExpandedSections] = useState<Record<SectionKey, bool
                   <div>
                     <div className="flex justify-between items-center mb-2">
                       <span className="text-sm md:text-base font-semibold text-orange-100/80">Risk Score</span>
-                      <div>
-                <span className="text-2xl md:text-3xl font-bold block" style={{ color: data.combined_analysis.verdict_color || '#f59e0b' }}>
+                      <div className="text-center">
+                <span className="text-2xl md:text-3xl font-bold block text-white">
                   {data.combined_analysis.verdict}
                 </span>
-                <span className="text-xl md:text-2xl font-bold tabular-nums block mt-1" style={{ color: data.combined_analysis.verdict_color || '#f59e0b' }}>
+                <span className="text-xl md:text-2xl font-bold tabular-nums block mt-1" style={{ color: '#3b82f6' }}>
                   {Math.round(data.combined_analysis.overall_score || 0)}%
                 </span>
               </div>
