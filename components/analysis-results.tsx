@@ -118,11 +118,16 @@ const [expandedSections, setExpandedSections] = useState<Record<SectionKey, bool
     <div className="w-full space-y-3 md:space-y-4">
       {/* Verdict Card - Mobile optimized */}
       <div className={`bg-gradient-to-br ${bgGradient} border ${borderColor} rounded-xl md:rounded-2xl p-4 md:p-6 backdrop-blur-sm`}>
-        <div className="flex flex-col items-end gap-2">
-          <div className="flex items-center gap-4">
+        <div className="flex flex-col gap-4">
+          <div className="flex justify-end items-center gap-4">
             <span className="text-3xl font-bold text-white">{verdict}</span>
             <span className="text-4xl font-bold" style={{ color: '#3b82f6' }}>{Math.round(credibilityScore)}%</span>
           </div>
+          {data.title && (
+            <div className="text-orange-100/90 text-sm md:text-base">
+              {data.title}
+            </div>
+          )}
         </div>
 
         {/* Progress Bar - Slimmer on mobile */}
