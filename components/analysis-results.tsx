@@ -120,11 +120,11 @@ const [expandedSections, setExpandedSections] = useState<Record<SectionKey, bool
       <div className={`bg-gradient-to-br ${bgGradient} border ${borderColor} rounded-xl md:rounded-2xl p-4 md:p-6 backdrop-blur-sm`}>
         <div className="flex flex-col gap-6">
           {data.title && (
-            <div className="text-orange-100 text-xl md:text-2xl font-bold">
+            <div className="text-orange-100 text-2xl md:text-3xl font-bold">
               {data.title}
             </div>
           )}
-          <div className="flex items-center justify-center gap-4">
+          <div className="w-full flex items-center justify-center gap-4">
             <span className="text-3xl font-bold text-white">{verdict}</span>
             <span className="text-4xl font-bold" style={{ color: '#3b82f6' }}>{Math.round(credibilityScore)}%</span>
           </div>
