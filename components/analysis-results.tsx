@@ -135,7 +135,7 @@ const [expandedSections, setExpandedSections] = useState<Record<SectionKey, bool
           </div>
           <div className="text-center self-end md:self-auto">
             <div className={`text-4xl md:text-6xl font-bold tabular-nums`} style={{ color: verdictColor }}>
-              {Math.round(credibilityScore)}/100
+              {verdict}: {Math.round(credibilityScore)}%
             </div>
             <div className="text-orange-100/60 text-xs md:text-sm mt-0.5 md:mt-1">Risk Score</div>
           </div>
@@ -316,7 +316,7 @@ const [expandedSections, setExpandedSections] = useState<Record<SectionKey, bool
                     <div className="flex justify-between items-center mb-2">
                       <span className="text-sm md:text-base font-semibold text-orange-100/80">Risk Score</span>
                       <span className="text-3xl md:text-5xl font-bold tabular-nums" style={{ color: data.combined_analysis.verdict_color || '#f59e0b' }}>
-                        {Math.round(data.combined_analysis.overall_score || 0)}/100
+                        {data.combined_analysis.verdict}: {Math.round(data.combined_analysis.overall_score || 0)}%
                       </span>
                     </div>
                     
