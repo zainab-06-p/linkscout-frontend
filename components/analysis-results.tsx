@@ -54,9 +54,9 @@ export function AnalysisResults({ data, onFeedback }: AnalysisResultsProps) {
     );
   }
 
-  // Use the server's misinformation percentage directly to calculate credibility
+  // Always use server's credibility_percentage to ensure alignment with sidebar
+  const credibilityScore = data.credibility_percentage || 0;
   const suspiciousScore = data.misinformation_percentage || 0;
-  const credibilityScore = 100 - suspiciousScore;  // Always use 100 - suspicious score
   
   const verdict = data.verdict || 'UNKNOWN';
   
