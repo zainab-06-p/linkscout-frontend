@@ -1,4 +1,14 @@
-"use client";
+FAKE NEWS
+Argentina elections: Javier Milei and his 'chainsaw' austerity win big
+
+25.0%
+Credible
+42
+Total Paragraphs
+18
+High Risk
+2
+Medium Risk"use client";
 import React, { useState } from "react";
 import { 
   CheckCircle2, 
@@ -55,19 +65,19 @@ export function AnalysisResults({ data, onFeedback }: AnalysisResultsProps) {
   }
 
   const misinformationScore = data.misinformation_percentage || 0;
-  const credibilityScore = Math.max(0, Math.min(100, 100 - misinformationScore)); // Ensure score is between 0-100
+  const credibilityScore = data.overall ? ((data.overall.total_paragraphs - data.overall.fake_paragraphs) / data.overall.total_paragraphs) * 100 : (100 - misinformationScore);
   const verdict = data.verdict || 'UNKNOWN';
   
-  // Determine color scheme based on credibility score using the same thresholds as the sidebar
+  // Determine color scheme based on credibility score using the server thresholds
   let verdictColor = 'text-red-400';
   let bgGradient = 'from-red-500/20 to-rose-500/20';
   let borderColor = 'border-red-500/30';
   
-  if (credibilityScore >= 75) {
+  if (credibilityScore >= 60) {
     verdictColor = 'text-green-400';
     bgGradient = 'from-green-500/20 to-emerald-500/20';
     borderColor = 'border-green-500/30';
-  } else if (credibilityScore >= 42.7) {
+  } else if (credibilityScore >= 30) {
     verdictColor = 'text-yellow-400';
     bgGradient = 'from-yellow-500/20 to-amber-500/20';
     borderColor = 'border-yellow-500/30';
