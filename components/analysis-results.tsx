@@ -54,8 +54,9 @@ export function AnalysisResults({ data, onFeedback }: AnalysisResultsProps) {
     );
   }
 
-  // Use the server's credibility score directly
-  const credibilityScore = data.overall?.credibility_score || 100 - (data.misinformation_percentage || 0);
+  // Use the exact credibility score from the server's suspicious score
+  const suspiciousScore = data.misinformation_percentage || 0;
+  const credibilityScore = suspiciousScore > 0 ? (100 - suspiciousScore) : (data.overall?.credibility_score || 0);
   
   const verdict = data.verdict || 'UNKNOWN';
   
