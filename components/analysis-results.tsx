@@ -102,8 +102,10 @@ const [expandedSections, setExpandedSections] = useState<Record<SectionKey, bool
   const verdict = data.combined_analysis?.verdict || 'UNKNOWN';
   const verdictColor = data.combined_analysis?.verdict_color || '#f59e0b';
   
+  // Format the score as a percentage (100 - score to convert from risk to credibility)
+  const credibilityPercentage = Math.round(100 - credibilityScore);
+  
   // Use server's credibility assessment
-  // Use the server's verdict color directly
   const bgGradient = `from-[${verdictColor}]/20 to-[${verdictColor}]/10`;
   const borderColor = `border-[${verdictColor}]/30`;
 
@@ -134,10 +136,13 @@ const [expandedSections, setExpandedSections] = useState<Record<SectionKey, bool
             )}
           </div>
           <div className="text-center self-end md:self-auto">
-            <div className={`text-4xl md:text-6xl font-bold tabular-nums`} style={{ color: verdictColor }}>
-              {verdict}: {Math.round(credibilityScore)}%
+            <div className={`text-2xl md:text-4xl font-bold`} style={{ color: verdictColor }}>
+              {verdict}
             </div>
-            <div className="text-orange-100/60 text-xs md:text-sm mt-0.5 md:mt-1">Risk Score</div>
+            <div className={`text-xl md:text-2xl font-bold tabular-nums mt-1`} style={{ color: verdictColor }}>
+              {credibilityPercentage}%
+            </div>
+            <div className="text-orange-100/60 text-xs md:text-sm mt-0.5 md:mt-1">Credible</div>
           </div>
         </div>
 
@@ -315,9 +320,14 @@ const [expandedSections, setExpandedSections] = useState<Record<SectionKey, bool
                   <div>
                     <div className="flex justify-between items-center mb-2">
                       <span className="text-sm md:text-base font-semibold text-orange-100/80">Risk Score</span>
-                      <span className="text-3xl md:text-5xl font-bold tabular-nums" style={{ color: data.combined_analysis.verdict_color || '#f59e0b' }}>
-                        {data.combined_analysis.verdict}: {Math.round(data.combined_analysis.overall_score || 0)}%
-                      </span>
+                      <div>
+                <span className="text-2xl md:text-3xl font-bold block" style={{ color: data.combined_analysis.verdict_color || '#f59e0b' }}>
+                  {data.combined_analysis.verdict}
+                </span>
+                <span className="text-xl md:text-2xl font-bold tabular-nums block mt-1" style={{ color: data.combined_analysis.verdict_color || '#f59e0b' }}>
+                  {Math.round(100 - (data.combined_analysis.overall_score || 0))}%
+                </span>
+              </div>
                     </div>
                     
                     {/* Meter Bar */}
