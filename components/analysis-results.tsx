@@ -54,8 +54,11 @@ export function AnalysisResults({ data, onFeedback }: AnalysisResultsProps) {
     );
   }
 
-  const misinformationScore = data.misinformation_percentage || 0;
-  const credibilityScore = data.overall ? ((data.overall.total_paragraphs - data.overall.fake_paragraphs) / data.overall.total_paragraphs) * 100 : (100 - misinformationScore);
+  const suspiciousScore = data.misinformation_percentage || 0;
+  const credibilityScore = data.overall && data.overall.total_paragraphs > 0
+    ? ((data.overall.total_paragraphs - (data.overall.fake_paragraphs + data.overall.suspicious_paragraphs * 0.5)) / data.overall.total_paragraphs) * 100
+    : Math.max(0, Math.min(100, 100 - suspiciousScore));
+
   const verdict = data.verdict || 'UNKNOWN';
   
   // Determine color scheme based on credibility score using the server thresholds
@@ -84,9 +87,9 @@ export function AnalysisResults({ data, onFeedback }: AnalysisResultsProps) {
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 md:gap-4">
           <div className="flex-1 w-full">
             <div className="flex items-center gap-2 md:gap-3 mb-1.5 md:mb-2">
-              {misinformationScore < 30 ? (
+              {credibilityScore >= 60 ? (
                 <CheckCircle2 className="h-6 w-6 md:h-8 md:w-8 text-green-400 shrink-0" />
-              ) : misinformationScore < 60 ? (
+              ) : credibilityScore >= 30 ? (
                 <AlertTriangle className="h-6 w-6 md:h-8 md:w-8 text-yellow-400 shrink-0" />
               ) : (
                 <XCircle className="h-6 w-6 md:h-8 md:w-8 text-red-400 shrink-0" />
