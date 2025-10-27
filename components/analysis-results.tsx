@@ -54,20 +54,20 @@ export function AnalysisResults({ data, onFeedback }: AnalysisResultsProps) {
     );
   }
 
-  const percentage = data.misinformation_percentage || 0;
-  const credibilityScore = 100 - percentage; // Convert to credibility percentage
+  const misinformationScore = data.misinformation_percentage || 0;
+  const credibilityScore = Math.max(0, Math.min(100, 100 - misinformationScore)); // Ensure score is between 0-100
   const verdict = data.verdict || 'UNKNOWN';
   
-  // Determine color scheme based on credibility score
+  // Determine color scheme based on credibility score using the same thresholds as the sidebar
   let verdictColor = 'text-red-400';
   let bgGradient = 'from-red-500/20 to-rose-500/20';
   let borderColor = 'border-red-500/30';
   
-  if (credibilityScore > 57) {
+  if (credibilityScore >= 75) {
     verdictColor = 'text-green-400';
     bgGradient = 'from-green-500/20 to-emerald-500/20';
     borderColor = 'border-green-500/30';
-  } else if (credibilityScore > 43) {
+  } else if (credibilityScore >= 42.7) {
     verdictColor = 'text-yellow-400';
     bgGradient = 'from-yellow-500/20 to-amber-500/20';
     borderColor = 'border-yellow-500/30';
@@ -84,9 +84,9 @@ export function AnalysisResults({ data, onFeedback }: AnalysisResultsProps) {
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 md:gap-4">
           <div className="flex-1 w-full">
             <div className="flex items-center gap-2 md:gap-3 mb-1.5 md:mb-2">
-              {percentage < 30 ? (
+              {misinformationScore < 30 ? (
                 <CheckCircle2 className="h-6 w-6 md:h-8 md:w-8 text-green-400 shrink-0" />
-              ) : percentage < 60 ? (
+              ) : misinformationScore < 60 ? (
                 <AlertTriangle className="h-6 w-6 md:h-8 md:w-8 text-yellow-400 shrink-0" />
               ) : (
                 <XCircle className="h-6 w-6 md:h-8 md:w-8 text-red-400 shrink-0" />
