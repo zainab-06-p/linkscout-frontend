@@ -183,9 +183,9 @@ export default function SearchPage() {
           <div className="max-w-5xl mx-auto">
             <h1 className="text-base md:text-3xl font-bold bg-linear-to-r from-orange-300 to-yellow-300 bg-clip-text text-transparent flex items-center gap-2">
               <Sparkles className="h-4 w-4 md:h-8 md:w-8 text-orange-400 shrink-0" />
-              <span className="truncate">LinkScout AI Analysis</span>
+              <span className="truncate">LinkScout</span>
             </h1>
-            <p className="text-orange-100/70 mt-0.5 md:mt-2 text-[10px] md:text-base leading-tight">AI-powered misinformation detection</p>
+            <p className="text-orange-100/70 mt-0.5 md:mt-2 text-[10px] md:text-base leading-tight">Smart Analysis. Simple Answers.</p>
           </div>
         </div>
 

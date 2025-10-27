@@ -55,18 +55,19 @@ export function AnalysisResults({ data, onFeedback }: AnalysisResultsProps) {
   }
 
   const percentage = data.misinformation_percentage || 0;
+  const credibilityScore = 100 - percentage; // Convert to credibility percentage
   const verdict = data.verdict || 'UNKNOWN';
   
-  // Determine color scheme based on percentage
-  let verdictColor = 'text-green-400';
-  let bgGradient = 'from-green-500/20 to-emerald-500/20';
-  let borderColor = 'border-green-500/30';
+  // Determine color scheme based on credibility score
+  let verdictColor = 'text-red-400';
+  let bgGradient = 'from-red-500/20 to-rose-500/20';
+  let borderColor = 'border-red-500/30';
   
-  if (percentage > 60) {
-    verdictColor = 'text-red-400';
-    bgGradient = 'from-red-500/20 to-rose-500/20';
-    borderColor = 'border-red-500/30';
-  } else if (percentage > 30) {
+  if (credibilityScore > 57) {
+    verdictColor = 'text-green-400';
+    bgGradient = 'from-green-500/20 to-emerald-500/20';
+    borderColor = 'border-green-500/30';
+  } else if (credibilityScore > 43) {
     verdictColor = 'text-yellow-400';
     bgGradient = 'from-yellow-500/20 to-amber-500/20';
     borderColor = 'border-yellow-500/30';
@@ -100,21 +101,21 @@ export function AnalysisResults({ data, onFeedback }: AnalysisResultsProps) {
           </div>
           <div className="text-center self-end md:self-auto">
             <div className={`text-4xl md:text-6xl font-bold ${verdictColor} tabular-nums`}>
-              {percentage.toFixed(1)}%
+              {credibilityScore.toFixed(1)}%
             </div>
-            <div className="text-orange-100/60 text-xs md:text-sm mt-0.5 md:mt-1">Risk Score</div>
+            <div className="text-orange-100/60 text-xs md:text-sm mt-0.5 md:mt-1">Credible</div>
           </div>
         </div>
 
         {/* Progress Bar - Slimmer on mobile */}
-        <div className="mt-4 md:mt-6 bg-black/20 rounded-full h-2 md:h-3 overflow-hidden">
+          <div className="mt-4 md:mt-6 bg-black/20 rounded-full h-2 md:h-3 overflow-hidden">
           <div 
             className={`h-full rounded-full transition-all duration-1000 ${
-              percentage < 30 ? 'bg-gradient-to-r from-green-400 to-emerald-500' :
-              percentage < 60 ? 'bg-gradient-to-r from-yellow-400 to-amber-500' :
+              credibilityScore > 57 ? 'bg-gradient-to-r from-green-400 to-emerald-500' :
+              credibilityScore > 43 ? 'bg-gradient-to-r from-yellow-400 to-amber-500' :
               'bg-gradient-to-r from-red-400 to-rose-500'
             }`}
-            style={{ width: `${Math.min(percentage, 100)}%` }}
+            style={{ width: `${Math.min(credibilityScore, 100)}%` }}
           />
         </div>
 
