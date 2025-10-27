@@ -1,14 +1,4 @@
-FAKE NEWS
-Argentina elections: Javier Milei and his 'chainsaw' austerity win big
-
-25.0%
-Credible
-42
-Total Paragraphs
-18
-High Risk
-2
-Medium Risk"use client";
+"use client";
 import React, { useState } from "react";
 import { 
   CheckCircle2, 
