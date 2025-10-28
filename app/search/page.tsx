@@ -127,6 +127,7 @@ export default function SearchPage() {
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(errorData.message || 'Analysis failed. The backend server might be starting up, please try again in a few seconds.');
+      }
 
       const data = await response.json();
 
