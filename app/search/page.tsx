@@ -115,6 +115,8 @@ export default function SearchPage() {
         };
       }
 
+      console.log('Sending analysis request:', requestBody);
+      
       // Call backend API for analysis
       const response = await fetch('/api/analyze', {
         method: 'POST',
@@ -123,8 +125,8 @@ export default function SearchPage() {
       });
 
       if (!response.ok) {
-        throw new Error('Analysis failed. Please ensure the backend server is running on port 5000.');
-      }
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Analysis failed. The backend server might be starting up, please try again in a few seconds.');
 
       const data = await response.json();
 
